@@ -1,0 +1,123 @@
+@import "tailwindcss";
+
+:root {
+  --background: #050508;
+  --foreground: #ffffff;
+  --accent-cyan: #00f3ff;
+  --accent-magenta: #ff00ff;
+  --accent-purple: #9d00ff;
+  --accent-gold: #ffcc00;
+  --glass: rgba(255, 255, 255, 0.04);
+  --glass-border: rgba(255, 255, 255, 0.08);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* === Glass Panels === */
+.glass-panel {
+  background: var(--glass);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid var(--glass-border);
+  border-radius: 16px;
+}
+
+.neon-border {
+  border: 1px solid rgba(0, 243, 255, 0.2);
+  box-shadow:
+    0 0 20px rgba(0, 243, 255, 0.08),
+    inset 0 0 20px rgba(0, 243, 255, 0.03);
+}
+
+/* === Text Effects === */
+.glow-text {
+  text-shadow: 0 0 10px rgba(255, 255, 255, 0.4);
+}
+
+.cyan-glow {
+  text-shadow:
+    0 0 10px rgba(0, 243, 255, 0.6),
+    0 0 30px rgba(0, 243, 255, 0.2);
+}
+
+/* === Animations === */
+@keyframes float {
+
+  0%,
+  100% {
+    transform: translateY(0px);
+  }
+
+  50% {
+    transform: translateY(-6px);
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+.animate-float {
+  animation: float 3s ease-in-out infinite;
+}
+
+.animate-shimmer {
+  background: linear-gradient(90deg,
+      transparent 0%,
+      rgba(255, 255, 255, 0.04) 50%,
+      transparent 100%);
+  background-size: 200% 100%;
+  animation: shimmer 3s linear infinite;
+}
+
+/* === Scrollbar === */
+.custom-scrollbar::-webkit-scrollbar {
+  width: 4px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.06);
+  border-radius: 4px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: var(--accent-cyan);
+}
+
+/* === Selection === */
+::selection {
+  background: rgba(0, 243, 255, 0.3);
+  color: #fff;
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateX(20px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}

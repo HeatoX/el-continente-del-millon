@@ -1,0 +1,63 @@
+🌍 El Continente del Millón — Guía Completa + Plan de Desarrollo
+La Idea Mejorada al Máximo
+"El Continente del Millón" es un juego de conquista social Web3 que fusiona:
+
+🗺️ Mapa del Tesoro Criptográfico — Un tablero visual interactivo que genera FOMO masivo
+🌊 Lotería de Cascada — Viralidad explosiva por referidos integrados en blockchain
+🔄 Bucle perpetuo — Al terminar una temporada, el contrato se reinicia automáticamente
+📋 Guía: ¿Cómo Funciona Todo?
+🎮 Mecánica del Juego
+Elemento	Detalle
+Tablero	Cuadrícula de 500×500 = 250,000 parcelas
+Precio	$5 USDC por parcela
+Bote Total	$1,250,000 cuando se llena
+Blockchain	Polygon o Base (fees < $0.01)
+Sorteo	Automático al venderse la última parcela
+Aleatoriedad	Chainlink VRF (inhackeable y verificable)
+💰 Distribución del Premio ($1,250,000)
+%	Monto	Destinatario	Psicología
+50%	$625,000	🏆 Ganador (dueño de la parcela)	Premio que cambia la vida por $5
+15%	$187,500	🤝 El Padrino (quien lo invitó)	Influencers promocionan gratis
+10%	$125,000	🏘️ Los 8 Vecinos (parcelas adyacentes)	La gente compra bloques 3×3
+5%	$62,500	🌧️ Lluvia (100 parcelas random)	$625 de consuelo, esperanza viva
+20%	$250,000	🏦 Tesorería (tú)	Financia seguridad, marketing, Temporada 2
+🔄 El Bucle Perpetuo
+Cuando se reparte el premio → reset() automático → Temporada 2 arranca. Historial de temporadas anteriores visible. Máquina perpetua de generar dinero.
+
+💵 ¿Qué Hay que Crear y Qué Hay que Pagar?
+🟢 GRATIS o Casi Gratis (~$20-50)
+Elemento	Costo	Herramienta
+Código Frontend	$0	Next.js + Canvas (lo construyo yo)
+Código Smart Contract	$0	Solidity (lo construyo yo)
+Hosting web	$0	Vercel (gratis)
+Deploy del contrato	< $1	Polygon/Base
+Oráculo Chainlink VRF	~$5/sorteo	Tokens LINK
+Dominio web	~$15/año	Namecheap/GoDaddy
+🔴 INVERSIÓN NECESARIA para sostener $1.25M
+Elemento	Costo	Por qué es obligatorio
+Auditoría de seguridad	$3,000 - $15,000	Un hacker puede robar todo el bote si hay un bug
+LINK tokens para VRF	~$5-10 por sorteo	Pagar el oráculo de aleatoriedad
+Gas inicial	~$5-20	Deploy del contrato + transacciones admin
+🧠 Estrategia de Escalamiento (Sin dinero inicial)
+Fase 1: TESTNET ($0) → Juego con dinero falso, probar todo
+Fase 2: "El Pueblo" → 2,000 parcelas × $5 = $10,000 bote
+         Tu ganancia: $2,000 × 4 rondas = $8,000
+Fase 3: Auditoría → Pagas con las ganancias del Pueblo
+Fase 4: "El Continente" → 250,000 parcelas = $1,250,000
+🚀 Mejoras "Máxima Potencia" Implementadas
+1. 🌋 Eventos de "Terremoto" (Nuevo)
+Cada 10% del mapa vendido → mini-sorteo en vivo. Se regalan 5 parcelas gratis entre los que ya compraron. Genera hype constante, no solo al final.
+
+2. 🏅 Insignias de Conquistador (Nuevo)
+🥉 Explorador: 1 parcela
+🥈 Conquistador: 10+ parcelas
+🥇 Emperador: 50+ parcelas
+💎 Leyenda: 100+ parcelas (bonus: +2% en lluvia de consuelo)
+3. 📊 Tabla de Padrinos en Vivo (Nuevo)
+Leaderboard público de los top referidores. "¿Quién ha traído más guerreros al Continente?" Competición entre influencers por el podio.
+
+4. 🔥 Zona Caliente Aleatoria (Nuevo)
+Cada hora, el contrato marca una zona 10×10 del mapa como "Zona Caliente". Las parcelas compradas en esa zona durante esa hora tienen doble probabilidad en la lluvia de consuelo. Genera urgencia constante.
+
+5. 🎨 Parcelas Personalizables
+Cada parcela puede mostrar: avatar, mensaje corto, o color personalizado. El mapa se convierte en un mural social.
