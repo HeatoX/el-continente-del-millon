@@ -13,14 +13,13 @@ export default function StatsPanel() {
     const percentage = (soldCount / totalParcels) * 100;
     const seasonId = isContractReady ? contractState.seasonId : gameState.season;
 
-    // Prize pool: convert BNB to USD estimate (~$600/BNB as reference)
-    const prizePoolBNB = isContractReady ? parseFloat(contractState.prizePool) : (gameState.pixelsSold * 0.01);
-    const prizePoolUSD = isContractReady ? soldCount * 5 : gameState.prizePool;
+    // Prize pool in USDT
+    const prizePoolUSDT = isContractReady ? parseFloat(contractState.prizePool) : (gameState.pixelsSold * 5);
 
     const nextEarthquake = Math.ceil(soldCount / 25000) * 25000;
     const eqProgress = ((soldCount % 25000) / 25000) * 100;
 
-    const carryOverBNB = isContractReady ? parseFloat(contractState.carryOver) : 0;
+    const carryOverUSDT = isContractReady ? parseFloat(contractState.carryOver) : 0;
 
     return (
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
@@ -29,12 +28,11 @@ export default function StatsPanel() {
                 <div className="absolute -top-4 -right-4 text-[60px] opacity-[0.04] group-hover:opacity-[0.08] transition-opacity select-none">💰</div>
                 <div className="text-[9px] uppercase font-black tracking-[0.2em] text-white/30 mb-1">Premio Acumulado</div>
                 <div className="text-2xl lg:text-3xl font-black text-cyan-400 cyan-glow">
-                    ${prizePoolUSD.toLocaleString()}
+                    ${prizePoolUSDT.toLocaleString()} <span className="text-sm text-cyan-400/50">USDT</span>
                 </div>
                 <div className="text-[9px] text-white/20 mt-1 font-bold">
-                    {prizePoolBNB.toFixed(2)} BNB
-                    {carryOverBNB > 0 && (
-                        <span className="text-green-400/60 ml-2">+{carryOverBNB.toFixed(2)} carry-over</span>
+                    {carryOverUSDT > 0 && (
+                        <span className="text-green-400/60">+{carryOverUSDT.toFixed(2)} USDT carry-over</span>
                     )}
                 </div>
             </div>
@@ -85,8 +83,8 @@ export default function StatsPanel() {
                         <span className={`w-1.5 h-1.5 rounded-full ${isContractReady ? 'bg-green-500' : 'bg-yellow-500'} animate-pulse`} />
                         {isContractReady ? 'On-Chain' : 'Demo'}
                     </span>
-                    <span className="text-[9px] bg-cyan-500/15 text-cyan-400 px-2 py-0.5 rounded-full font-bold uppercase tracking-wider">
-                        BNB Chain
+                    <span className="text-[9px] bg-emerald-500/15 text-emerald-400 px-2 py-0.5 rounded-full font-bold uppercase tracking-wider">
+                        BSC (USDT)
                     </span>
                 </div>
             </div>

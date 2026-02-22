@@ -5,23 +5,37 @@ import { ethers } from 'ethers';
 import { CONTRACT_ABI, CONTRACT_ADDRESS, ACTIVE_CHAIN } from '@/lib/contract';
 import { useWallet } from './WalletContext';
 
+// Standard ERC20 ABI to interact with USDT
+const ERC20_ABI = [
+    "function allowance(address owner, address spender) view returns (uint256)",
+    "function approve(address spender, uint256 amount) returns (bool)",
+    "function balanceOf(address account) view returns (uint256)",
+    "function symbol() view returns (string)",
+    "function decimals() view returns (uint8)"
+];
+// BSC Mainnet USDT BEP-20
+const USDT_ADDRESS = "0x55d398326f99059fF775485246999027B3197955";
+
 interface ContractState {
     seasonId: number;
     totalParcels: number;
     soldCount: number;
-    prizePool: string; // in BNB
+    prizePool: string; // in USDT
     carryOver: string;
     parcelPrice: string;
     drawPhase: number; // 0=BUYING, 1=COMMITTED, etc.
     userParcels: number;
     userReferrals: number;
     pendingPrize: string;
+    usdtAllowance: string;
+    usdtBalance: string;
     loading: boolean;
 }
 
 interface ContractContextType {
     state: ContractState;
-    buyParcels: (xs: number[], ys: number[], referrer?: string) => Promise<string | null>;
+    buyParcels: (xs: number[], ys: number[], referrer?: string, color?: number, identifier?: string) => Promise<string | null>;
+    approveUsdt: (amount: string) => Promise<string | null>;
     claimPrize: () => Promise<string | null>;
     getParcelOwner: (x: number, y: number) => Promise<string>;
     refreshState: () => Promise<void>;
@@ -51,6 +65,8 @@ export function ContractProvider({ children }: { children: ReactNode }) {
         userParcels: 0,
         userReferrals: 0,
         pendingPrize: '0',
+        usdtAllowance: '0',
+        usdtBalance: '0',
         loading: true,
     });
 
@@ -100,6 +116,8 @@ export function ContractProvider({ children }: { children: ReactNode }) {
             let userParcels = 0;
             let userReferrals = 0;
             let pendingPrize = '0';
+            let usdtAllowance = '0';
+            let usdtBalance = '0';
 
             if (address) {
                 const [parcels, referrals, pending] = await Promise.all([
@@ -107,6 +125,22 @@ export function ContractProvider({ children }: { children: ReactNode }) {
                     contract.totalReferrals(address),
                     contract.getPendingPrize(address),
                 ]);
+
+                // Fetch USDT Info
+                if (USDT_ADDRESS) {
+                    try {
+                        const usdtContract = new ethers.Contract(USDT_ADDRESS, ERC20_ABI, getProvider());
+                        const [allow, bal] = await Promise.all([
+                            usdtContract.allowance(address, CONTRACT_ADDRESS),
+                            usdtContract.balanceOf(address)
+                        ]);
+                        usdtAllowance = ethers.formatEther(allow);
+                        usdtBalance = ethers.formatEther(bal);
+                    } catch (e) {
+                        console.warn("Could not fetch USDT balance in testnet/dev");
+                    }
+                }
+
                 userParcels = Number(parcels);
                 userReferrals = Number(referrals);
                 pendingPrize = ethers.formatEther(pending);
@@ -123,6 +157,8 @@ export function ContractProvider({ children }: { children: ReactNode }) {
                 userParcels,
                 userReferrals,
                 pendingPrize,
+                usdtAllowance,
+                usdtBalance,
                 loading: false,
             });
             setError(null);
@@ -143,7 +179,7 @@ export function ContractProvider({ children }: { children: ReactNode }) {
     }, [isContractReady, refreshState]);
 
     // Buy parcels
-    const buyParcels = useCallback(async (xs: number[], ys: number[], referrer?: string): Promise<string | null> => {
+    const buyParcels = useCallback(async (xs: number[], ys: number[], referrer?: string, color?: number, identifier?: string): Promise<string | null> => {
         try {
             setError(null);
             const contract = await getWriteContract();
@@ -152,9 +188,13 @@ export function ContractProvider({ children }: { children: ReactNode }) {
             const price = await contract.PARCEL_PRICE();
             const totalCost = price * BigInt(xs.length);
 
-            const tx = await contract.buyParcels(xs, ys, referrer || ethers.ZeroAddress, {
-                value: totalCost,
-            });
+            const tx = await contract.buyParcels(
+                xs,
+                ys,
+                referrer || ethers.ZeroAddress,
+                color || 0,
+                identifier || "0x00000000"
+            );
 
             await tx.wait();
             await refreshState();
@@ -166,6 +206,29 @@ export function ContractProvider({ children }: { children: ReactNode }) {
             return null;
         }
     }, [getWriteContract, refreshState]);
+
+    // Approve USDT
+    const approveUsdt = useCallback(async (amount: string): Promise<string | null> => {
+        try {
+            setError(null);
+            if (!CONTRACT_ADDRESS || !isConnected) throw new Error('Not connected');
+
+            const provider = new ethers.BrowserProvider((window as any).ethereum);
+            const signer = await provider.getSigner();
+            const usdtContract = new ethers.Contract(USDT_ADDRESS, ERC20_ABI, signer);
+
+            // Allow contract to spend the specified USDT amount
+            const tx = await usdtContract.approve(CONTRACT_ADDRESS, ethers.parseEther(amount));
+            await tx.wait();
+            await refreshState();
+            return tx.hash;
+        } catch (err: any) {
+            const message = err.reason || err.message || 'Approval failed';
+            setError(message);
+            console.error('Approve error:', err);
+            return null;
+        }
+    }, [isConnected, refreshState]);
 
     // Claim prize
     const claimPrize = useCallback(async (): Promise<string | null> => {
@@ -200,6 +263,7 @@ export function ContractProvider({ children }: { children: ReactNode }) {
         <ContractContext.Provider value={{
             state,
             buyParcels,
+            approveUsdt,
             claimPrize,
             getParcelOwner,
             refreshState,

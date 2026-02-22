@@ -32,8 +32,8 @@ export interface GameState {
 
 interface GameContextType {
     state: GameState;
-    buyParcel: (x: number, y: number) => void;
-    buyRandomParcels: (count: number) => void;
+    buyParcel: (x: number, y: number, color?: string, identifier?: string) => void;
+    buyRandomParcels: (count: number, color?: string, identifier?: string) => void;
     isParcelOwned: (x: number, y: number) => boolean;
 }
 
@@ -112,7 +112,7 @@ export function GameProvider({ children }: { children: ReactNode }) {
         return state.parcels.has(`${x},${y}`);
     }, [state.parcels]);
 
-    const buyParcel = useCallback((x: number, y: number) => {
+    const buyParcel = useCallback((x: number, y: number, color?: string, identifier?: string) => {
         setState(prev => {
             const key = `${x},${y}`;
             if (prev.parcels.has(key)) return prev;
@@ -120,14 +120,14 @@ export function GameProvider({ children }: { children: ReactNode }) {
             const newParcels = new Map(prev.parcels);
             newParcels.set(key, {
                 x, y,
-                owner: '0xTU...WAL',
-                color: '#00f3ff',
+                owner: identifier && identifier.length > 0 ? identifier : '0xTU...WAL',
+                color: color || '#00f3ff',
             });
 
             const newLog: ActivityLog = {
                 text: `Conquistó parcela [${x},${y}]`,
                 time: 'ahora',
-                user: '0xTU...WAL',
+                user: identifier && identifier.length > 0 ? identifier : '0xTU...WAL',
                 type: 'buy',
             };
 
@@ -142,7 +142,7 @@ export function GameProvider({ children }: { children: ReactNode }) {
         });
     }, []);
 
-    const buyRandomParcels = useCallback((count: number) => {
+    const buyRandomParcels = useCallback((count: number, color?: string, identifier?: string) => {
         setState(prev => {
             const newParcels = new Map(prev.parcels);
             const newLogs: ActivityLog[] = [];
@@ -156,7 +156,11 @@ export function GameProvider({ children }: { children: ReactNode }) {
                 attempts++;
 
                 if (!newParcels.has(key)) {
-                    newParcels.set(key, { x, y, owner: '0xTU...WAL', color: '#00f3ff' });
+                    newParcels.set(key, {
+                        x, y,
+                        owner: identifier && identifier.length > 0 ? identifier : '0xTU...WAL',
+                        color: color || '#00f3ff'
+                    });
                     bought++;
                 }
             }
@@ -165,7 +169,7 @@ export function GameProvider({ children }: { children: ReactNode }) {
                 newLogs.push({
                     text: `Conquistó x${bought} parcelas`,
                     time: 'ahora',
-                    user: '0xTU...WAL',
+                    user: identifier && identifier.length > 0 ? identifier : '0xTU...WAL',
                     type: 'buy',
                 });
             }

@@ -6,7 +6,7 @@ import { useWallet } from '@/context/WalletContext';
 import { useGame } from '@/context/GameContext';
 
 export default function BuyPanel() {
-    const { state: contractState, buyParcels, claimPrize, isContractReady, error: contractError } = useContract();
+    const { state: contractState, buyParcels, claimPrize, approveUsdt, isContractReady, error: contractError } = useContract();
     const { state: gameState, buyRandomParcels } = useGame();
     const { address } = useWallet();
     const [amount, setAmount] = useState(1);
@@ -15,8 +15,11 @@ export default function BuyPanel() {
     const [claiming, setClaiming] = useState(false);
     const [txHash, setTxHash] = useState<string | null>(null);
 
-    const priceBNB = 0.01;
-    const priceUSD = 5;
+    // ── Customization State ──
+    const [selectedColor, setSelectedColor] = useState('#00f3ff');
+    const [identifier, setIdentifier] = useState('');
+
+    const priceUSDT = 5;
 
     // Use contract state if available, otherwise fall back to game state
     const userParcels = isContractReady ? contractState.userParcels : gameState.userParcels;
@@ -32,6 +35,18 @@ export default function BuyPanel() {
             if (ref && ref.startsWith('0x')) setReferrer(ref);
         }
     }, []);
+
+    const isApprovalNeeded = isContractReady && parseFloat(contractState.usdtAllowance || '0') < (amount * priceUSDT);
+
+    const handleAction = async () => {
+        if (isApprovalNeeded) {
+            setBuying(true);
+            await approveUsdt((amount * priceUSDT).toString());
+            setBuying(false);
+        } else {
+            handleBuy();
+        }
+    };
 
     const handleBuy = async () => {
         if (isContractReady) {
@@ -56,7 +71,20 @@ export default function BuyPanel() {
                     attempts++;
                 }
 
-                const hash = await buyParcels(xs, ys, referrer || undefined);
+                // Pack color to uint32
+                const colorHex = selectedColor.replace('#', '');
+                const colorUint = parseInt(colorHex, 16);
+
+                // Encode identifier to bytes4
+                // Padding string to 4 chars, then to hex
+                let idStr = identifier.padEnd(4, ' ').substring(0, 4);
+                let hexId = '0x';
+                for (let i = 0; i < 4; i++) {
+                    hexId += idStr.charCodeAt(i).toString(16).padStart(2, '0');
+                }
+
+                // Ensure the context buyParcels accepts color and identifier
+                const hash = await buyParcels(xs, ys, referrer || undefined, colorUint, hexId);
                 if (hash) {
                     setTxHash(hash);
                 }
@@ -64,8 +92,8 @@ export default function BuyPanel() {
                 setBuying(false);
             }
         } else {
-            // Demo mode
-            buyRandomParcels(amount);
+            // Demo mode (Mocking the color and identifier for visual effect)
+            buyRandomParcels(amount, selectedColor, identifier);
         }
     };
 
@@ -100,6 +128,8 @@ export default function BuyPanel() {
     };
     const badge = getBadge(userParcels);
 
+    const presetColors = ['#00f3ff', '#ff0055', '#bb00ff', '#00ff66', '#ffaa00', '#ffffff'];
+
     return (
         <div className="glass-panel p-5 flex flex-col gap-5">
             <div className="flex items-center justify-between">
@@ -117,13 +147,47 @@ export default function BuyPanel() {
                 {isContractReady ? '🟢 CONTRATO ACTIVO — BNB REAL' : '🟡 MODO DEMO — Conecta wallet y despliega contrato'}
             </div>
 
+            {/* Customization Panel (100% On-Chain, 0 Gas) */}
+            <div className="p-3.5 rounded-lg bg-white/[0.02] border border-white/5 space-y-3">
+                <div className="flex items-center justify-between">
+                    <span className="text-[9px] font-black uppercase tracking-[0.1em] text-cyan-400">🎨 Identidad On-Chain (GRATIS)</span>
+                    <span className="text-[8px] text-white/30 uppercase">Visible desde el espacio</span>
+                </div>
+
+                <div className="space-y-2">
+                    <div className="flex gap-2">
+                        {presetColors.map(c => (
+                            <button
+                                key={c}
+                                onClick={() => setSelectedColor(c)}
+                                className={`w-6 h-6 rounded-full transition-transform ${selectedColor === c ? 'scale-125 border-2 border-white' : 'border border-white/20 hover:scale-110'}`}
+                                style={{ backgroundColor: c, boxShadow: selectedColor === c ? `0 0 10px ${c}80` : 'none' }}
+                            />
+                        ))}
+                    </div>
+
+                    <div className="relative">
+                        <input
+                            type="text"
+                            maxLength={4}
+                            value={identifier}
+                            onChange={(e) => setIdentifier(e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, ''))}
+                            placeholder="Nombre en el Mapa (Max 4 Letras)"
+                            className="w-full bg-black/40 border border-white/10 rounded-lg p-2.5 text-white font-bold outline-none focus:border-cyan-500/50 transition-colors text-xs uppercase"
+                        />
+                        <span className="absolute right-3 top-1/2 -translate-y-1/2 text-[9px] font-bold text-white/20">
+                            {identifier.length}/4
+                        </span>
+                    </div>
+                </div>
+            </div>
+
             {/* Amount selector */}
             <div className="space-y-3">
                 <div className="flex items-center justify-between text-[9px] font-black uppercase tracking-[0.15em] text-white/30">
                     <span>Cantidad</span>
                     <div className="text-right">
-                        <span className="text-cyan-400 text-xs">{(amount * priceBNB).toFixed(2)} BNB</span>
-                        <span className="text-white/20 ml-2">(~${(amount * priceUSD).toLocaleString()})</span>
+                        <span className="text-cyan-400 text-xs">{(amount * priceUSDT).toFixed(2)} USDT</span>
                     </div>
                 </div>
 
@@ -152,7 +216,7 @@ export default function BuyPanel() {
                         className="w-full bg-black/40 border border-white/10 rounded-lg p-3.5 text-white font-bold outline-none focus:border-cyan-500/50 transition-colors text-sm"
                     />
                     <span className="absolute right-3 top-1/2 -translate-y-1/2 text-[9px] uppercase font-bold text-white/20">
-                        c/u 0.01 BNB
+                        c/u 5 USDT
                     </span>
                 </div>
             </div>
@@ -177,13 +241,18 @@ export default function BuyPanel() {
 
             {/* BUY Button */}
             <button
-                onClick={handleBuy}
+                onClick={handleAction}
                 disabled={buying}
                 className="w-full py-4 rounded-xl bg-gradient-to-b from-white to-white/90 text-black font-black text-base tracking-tight hover:from-cyan-400 hover:to-cyan-500 transition-all duration-300 active:scale-[0.98] shadow-[0_8px_30px_-8px_rgba(255,255,255,0.25)] hover:shadow-[0_8px_30px_-8px_rgba(0,243,255,0.4)] disabled:opacity-50 disabled:cursor-wait"
             >
-                {buying ? '⏳ Confirmando en MetaMask...' : `CONQUISTAR ${amount > 1 ? `x${amount}` : ''} AHORA`}
+                {buying
+                    ? '⏳ Confirmando...'
+                    : isApprovalNeeded
+                        ? `APROBAR GASTOS (${amount * priceUSDT} USDT)`
+                        : `CONQUISTAR ${amount > 1 ? `x${amount}` : ''} AHORA`
+                }
                 <div className="text-[9px] font-bold text-black/40 tracking-widest uppercase mt-0.5">
-                    PREMIO MÁX: $500,000
+                    PREMIO MÁX: 500,000 USDT
                 </div>
             </button>
 
@@ -213,7 +282,7 @@ export default function BuyPanel() {
                     disabled={claiming}
                     className="w-full py-3 rounded-xl bg-gradient-to-r from-green-500 to-emerald-600 text-white font-black text-sm hover:from-green-400 hover:to-emerald-500 transition-all active:scale-[0.98] shadow-[0_0_30px_-10px_rgba(16,185,129,0.4)] disabled:opacity-50"
                 >
-                    {claiming ? '⏳ Reclamando...' : `🎉 RECLAMAR ${contractState.pendingPrize} BNB`}
+                    {claiming ? '⏳ Reclamando...' : `🎉 RECLAMAR ${contractState.pendingPrize} USDT`}
                 </button>
             )}
 

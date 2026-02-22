@@ -166,7 +166,11 @@ function Planet({ onParcelHover, onParcelSelect, selectedParcel }: {
             ctx.setLineDash([]);
 
             // Owner name as LARGE TEXT visible from space
-            const fontSize = Math.round(12 * logoScale);
+            // Identify if it's an ON-CHAIN IDENTIFIER (usually 4 chars, not 0x...)
+            const isCustom = owner.length <= 4 && !owner.startsWith('0x');
+            const label = isCustom ? owner : (owner.length > 10 ? owner.slice(0, 6) + '...' : owner);
+
+            const fontSize = isCustom ? Math.round(18 * logoScale) : Math.round(12 * logoScale);
             ctx.font = `900 ${fontSize}px "Arial Black", Arial, sans-serif`;
             ctx.textAlign = 'center';
             ctx.textBaseline = 'middle';
@@ -177,16 +181,15 @@ function Planet({ onParcelHover, onParcelSelect, selectedParcel }: {
             ctx.shadowOffsetX = 0;
             ctx.shadowOffsetY = 0;
 
-            // Label: short owner name
-            const label = owner.length > 10 ? owner.slice(0, 6) + '...' : owner;
-
             // Black outline for contrast
             ctx.strokeStyle = 'rgba(0, 0, 0, 0.8)';
             ctx.lineWidth = 3;
             ctx.strokeText(label, cx, cy - fontSize * 0.6);
 
-            // Colored text  
-            ctx.fillStyle = `rgb(${Math.min(255, r + 40)}, ${Math.min(255, g + 40)}, ${Math.min(255, b + 40)})`;
+            // Colored text (Brighter if custom)
+            ctx.fillStyle = isCustom
+                ? `rgb(255, 255, 255)`
+                : `rgb(${Math.min(255, r + 40)}, ${Math.min(255, g + 40)}, ${Math.min(255, b + 40)})`;
             ctx.fillText(label, cx, cy - fontSize * 0.6);
 
             // Parcel count badge

@@ -9,6 +9,7 @@ import ActivityFeed from '@/components/ActivityFeed';
 import { useWallet } from '@/context/WalletContext';
 import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
+import ReferralLink from '@/components/ReferralLink';
 
 const PlanetMap = dynamic(() => import('@/components/PlanetMap'), { ssr: false });
 
@@ -55,6 +56,7 @@ export default function AppPage() {
                 {/* Right: Buy & Activity */}
                 <div className="lg:col-span-3 flex flex-col gap-3 order-3">
                     <BuyPanel />
+                    <ReferralLink />
                     <ActivityFeed />
                 </div>
             </div>
