@@ -25,7 +25,7 @@
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "dotenv": "^17.3.1",
-    "eslint": "^9",
+    "eslint": "^8",
     "eslint-config-next": "14.2.14",
     "hardhat": "^2.28.0",
     "tailwindcss": "^4",
