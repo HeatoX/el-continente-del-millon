@@ -9,9 +9,9 @@
     "lint": "eslint"
   },
   "dependencies": {
-    "@react-three/drei": "^10.7.7",
-    "@react-three/fiber": "^9.5.0",
-    "@types/three": "^0.183.1",
+    "@react-three/drei": "^9.105.0",
+    "@react-three/fiber": "^8.16.0",
+    "@types/three": "^0.160.0",
     "ethers": "^6.16.0",
     "next": "14.2.14",
     "react": "^18.2.0",
@@ -22,8 +22,8 @@
     "@nomicfoundation/hardhat-toolbox": "^6.1.0",
     "@tailwindcss/postcss": "^4",
     "@types/node": "^20",
-    "@types/react": "^19",
-    "@types/react-dom": "^19",
+    "@types/react": "^18",
+    "@types/react-dom": "^18",
     "dotenv": "^17.3.1",
     "eslint": "^8",
     "eslint-config-next": "14.2.14",
