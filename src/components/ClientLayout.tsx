@@ -22,7 +22,7 @@ function NavBar() {
                         🌍
                     </div>
                     <span className="text-lg lg:text-xl font-black tracking-tighter bg-gradient-to-r from-cyan-400 to-purple-500 bg-clip-text text-transparent">
-                        EL CONTINENTE
+                        WORLDMILLION
                     </span>
                     <span className="hidden sm:inline text-[8px] bg-white/10 px-2 py-0.5 rounded-full text-white/40 uppercase tracking-widest font-black">
                         v2.0

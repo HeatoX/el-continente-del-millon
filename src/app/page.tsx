@@ -42,11 +42,11 @@ export default function LandingPage() {
 
           <h1 className="text-5xl md:text-7xl lg:text-8xl font-black tracking-tighter leading-[0.9] mb-6">
             <span className="bg-gradient-to-r from-cyan-400 via-blue-400 to-purple-500 bg-clip-text text-transparent">
-              EL CONTINENTE
+              WORLDMILLION
             </span>
             <br />
             <span className="text-white/90 text-3xl md:text-5xl lg:text-6xl">
-              DEL MILLÓN
+              CONQUEST
             </span>
           </h1>
 
@@ -157,7 +157,7 @@ export default function LandingPage() {
             Verificador Público <span className="text-[10px] bg-green-500/20 text-green-400 px-3 py-1 rounded-full uppercase tracking-wider">Temporada 0 (Demo)</span>
           </h3>
           <p className="text-sm text-white/40 mb-8 max-w-2xl relative z-10">
-            En <strong>El Continente</strong>, la transparencia lo es todo. Aquí podrás auditar los ganadores de la temporada pasada verificados directamente en la blockchain. Garantizamos la ejecución implacable de nuestro código abierto.
+            En <strong>WorldMillion</strong>, la transparencia lo es todo. Aquí podrás auditar los ganadores de la temporada pasada verificados directamente en la blockchain. Garantizamos la ejecución implacable de nuestro código abierto.
           </p>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 relative z-10">
@@ -246,7 +246,7 @@ export default function LandingPage() {
             { icon: '🎲', title: 'Aleatoriedad Híbrida Ofuscada', desc: 'Mezclamos un Hash cifrado del administrador antes de cerrar el sorteo con el hash impredecible exacto del Bloque 250,000 en 3 capas. Imposible de predecir o manipular por mineros o creadores.' },
             { icon: '🚫', title: 'CERO Puertas Traseras', desc: 'No incluimos funciones "Backdoors" en nuestro código. Ninguna autorización de emergencia para retirar liquidez de los usuarios. Todo es inmutable.' },
             { icon: '🔪', title: 'Cero Tolerancia al Creador', desc: 'Si el equipo se demora en revelar el hash por más de 24 horas, cualquier usuario al azar puede Forzar el Reveal en el contrato. ¡Gana la gente, pero la Tesorería se la traga el pozo y el equipo recibe 0$!' },
-            { icon: '🛡️', title: 'Laberintos Honeypot (Anti-Bots)', desc: 'Si un Hacker intenta atacar o usar Re-entrancy contra funciones clave de la tesorería (ingeniería inversa), se activará un bucle de ensamblador infinito. ¡Agota todo el Gas (dinero real) del hacker instantáneamente!' },
+            { icon: '🛡️', title: 'Defensas Reactivas (Anti-Bots)', desc: 'Nuestro Smart Contract está blindado con algoritmos de detección de intrusos. Cualquier intento de usar Re-entrancy o manipular el flujo del contrato será bloqueado y el atacante penalizado irreversiblemente por el sistema.' },
             { icon: '⏳', title: 'Expiración Reciclada (180 Días)', desc: 'Si un jugador sufre un accidente y no reclama su premio de $500,000 en 6 Meses, ese dinero no lo embolsa el creador. Una función lo liquida y lo ingresa directamente al Carry-Over progresivo de la comunidad general.' },
           ].map((item) => (
             <div key={item.title} className="flex gap-4 bg-white/[0.02] border border-white/5 rounded-2xl p-5 hover:border-white/10 transition-all">
@@ -273,7 +273,7 @@ export default function LandingPage() {
             { q: '¿Qué pasa si compro varias parcelas?', a: 'Tienes muchas más chances matemáticas de ganar y de ser tu propio "Vecino", PERO recuerda nuestra estricta regla de "Un Ganador Único". Solo cobrarás tu premio mayor. La Blockchain buscará billeteras de personas nuevas para el resto de consuelos.' },
             { q: '¿Cómo sé que el dueño de la web no se quedará mi dinero?', a: 'El Contrato Inteligente que procesa y guarda el dinero es un ente matemático inmutable y público. Carece de "Botones Secretos" para drenar dinero a discreción y puede ser verificado bloque a bloque.' },
             { q: '¿Tengo que hacer algo especial para cobrar mis $500,000?', a: 'No. Una vez ganados el sistema liberará tu saldo on-chain. Solo regresas a la web e inicias sesión con tu billetera seleccionando "Reclamar". Céntimo por céntimo, a tu bolsillo sin KYC ni terceros.' },
-            { q: '¿Qué pasa si mi internet falla o reclamo tarde?', a: 'Nada malo. En El Continente el premio ya es tuyo sin tiempos estrechos. Tienes un límite gigantesco de 6 meses de sobra para accionar tu billetera on-chain.' },
+            { q: '¿Qué pasa si mi internet falla o reclamo tarde?', a: 'Nada malo. En WorldMillion el premio ya es tuyo sin tiempos estrechos. Tienes un límite gigantesco de 6 meses de sobra para accionar tu billetera on-chain.' },
           ].map((item, i) => (
             <details key={i} className="group bg-white/[0.02] border border-white/5 rounded-2xl overflow-hidden">
               <summary className="cursor-pointer px-6 py-4 text-sm font-bold text-white/70 hover:text-white transition-colors flex items-center justify-between">
