@@ -47,5 +47,14 @@ git push -u origin main
 7. Pégala en Vercel → Settings → Environment Variables → `NEXT_PUBLIC_CONTRACT_ADDRESS`
 8. Redeploy en Vercel
 
+### Deployar via Hardhat (Profesional):
+Si prefieres usar la terminal:
+1. Pega tu `PRIVATE_KEY` en `.env.local`
+2. Ejecuta:
+```bash
+npx hardhat run scripts/deploy.js --network bscTestnet
+```
+3. Copia la dirección y ponla en Vercel.
+
 ### OpenZeppelin en Remix:
 Remix importa automáticamente `@openzeppelin/contracts` si usas la URL directa.
