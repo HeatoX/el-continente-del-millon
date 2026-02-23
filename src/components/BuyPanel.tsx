@@ -4,11 +4,13 @@ import { useState, useEffect } from 'react';
 import { useContract } from '@/context/ContractContext';
 import { useWallet } from '@/context/WalletContext';
 import { useGame } from '@/context/GameContext';
+import { useLanguage } from '@/context/LanguageContext';
 
 export default function BuyPanel() {
     const { state: contractState, buyParcels, claimPrize, approveUsdt, isContractReady, error: contractError } = useContract();
     const { state: gameState, buyRandomParcels } = useGame();
     const { address } = useWallet();
+    const { t } = useLanguage();
     const [amount, setAmount] = useState(1);
     const [copied, setCopied] = useState(false);
     const [buying, setBuying] = useState(false);
@@ -135,7 +137,7 @@ export default function BuyPanel() {
             <div className="flex items-center justify-between">
                 <h3 className="text-lg font-black tracking-tight flex items-center gap-2">
                     <span className="w-7 h-7 rounded-md bg-cyan-400 flex items-center justify-center text-black text-sm">⚔️</span>
-                    CONQUISTAR
+                    {t('buyPanel.conquer')}
                 </h3>
                 <span className={`text-[9px] font-black uppercase tracking-wider px-2 py-1 rounded-full border ${badge.color}`}>
                     {badge.label}
@@ -144,14 +146,14 @@ export default function BuyPanel() {
 
             {/* Mode indicator */}
             <div className={`text-[9px] font-bold uppercase tracking-wider px-3 py-1.5 rounded-full text-center ${isContractReady ? 'bg-green-500/10 text-green-400 border border-green-500/20' : 'bg-red-500/10 text-red-400 border border-red-500/20'}`}>
-                {isContractReady ? '🟢 CONTRATO ACTIVO — USDT REAL' : '🔴 DESCONECTADO — Conecta tu wallet para conquistar'}
+                {isContractReady ? t('buyPanel.active') : t('buyPanel.disconnected')}
             </div>
 
             {/* Customization Panel (100% On-Chain, 0 Gas) */}
             <div className="p-3.5 rounded-lg bg-white/[0.02] border border-white/5 space-y-3">
                 <div className="flex items-center justify-between">
-                    <span className="text-[9px] font-black uppercase tracking-[0.1em] text-cyan-400">🎨 Identidad On-Chain (GRATIS)</span>
-                    <span className="text-[8px] text-white/30 uppercase">Visible desde el espacio</span>
+                    <span className="text-[9px] font-black uppercase tracking-[0.1em] text-cyan-400">{t('buyPanel.identity')}</span>
+                    <span className="text-[8px] text-white/30 uppercase">{t('buyPanel.visible')}</span>
                 </div>
 
                 <div className="space-y-2">
@@ -172,7 +174,7 @@ export default function BuyPanel() {
                             maxLength={4}
                             value={identifier}
                             onChange={(e) => setIdentifier(e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, ''))}
-                            placeholder="Nombre en el Mapa (Max 4 Letras)"
+                            placeholder={t('buyPanel.namePlaceholder')}
                             className="w-full bg-black/40 border border-white/10 rounded-lg p-2.5 text-white font-bold outline-none focus:border-cyan-500/50 transition-colors text-xs uppercase"
                         />
                         <span className="absolute right-3 top-1/2 -translate-y-1/2 text-[9px] font-bold text-white/20">
@@ -185,7 +187,7 @@ export default function BuyPanel() {
             {/* Amount selector */}
             <div className="space-y-3">
                 <div className="flex items-center justify-between text-[9px] font-black uppercase tracking-[0.15em] text-white/30">
-                    <span>Cantidad</span>
+                    <span>{t('buyPanel.amount')}</span>
                     <div className="text-right">
                         <span className="text-cyan-400 text-xs">{(amount * priceUSDT).toFixed(2)} USDT</span>
                     </div>
@@ -216,7 +218,7 @@ export default function BuyPanel() {
                         className="w-full bg-black/40 border border-white/10 rounded-lg p-3.5 text-white font-bold outline-none focus:border-cyan-500/50 transition-colors text-sm"
                     />
                     <span className="absolute right-3 top-1/2 -translate-y-1/2 text-[9px] uppercase font-bold text-white/20">
-                        c/u 5 USDT
+                        {t('buyPanel.each')}
                     </span>
                 </div>
             </div>
@@ -224,9 +226,9 @@ export default function BuyPanel() {
             {/* Referral Link */}
             <div className="p-3.5 rounded-lg bg-white/[0.03] border border-white/5 space-y-2">
                 <div className="flex justify-between items-center text-[9px] font-black uppercase tracking-[0.15em]">
-                    <span className="text-white/30">Tu Link de Padrino</span>
+                    <span className="text-white/30">{t('buyPanel.refLink')}</span>
                     <button onClick={handleCopy} className="text-cyan-400 hover:text-cyan-300 transition-colors">
-                        {copied ? '✅ Copiado!' : 'Copiar'}
+                        {copied ? t('buyPanel.copied') : t('buyPanel.copy')}
                     </button>
                 </div>
                 <input
@@ -235,7 +237,7 @@ export default function BuyPanel() {
                     className="w-full bg-transparent border-none outline-none text-[10px] font-mono text-white/40 p-0"
                 />
                 <p className="text-[9px] text-white/15 leading-relaxed">
-                    Si alguien gana usando tu link → te llevas <span className="text-cyan-400/60 font-bold">15%</span> del bote (<span className="text-cyan-400/60 font-bold">$187,500</span>)
+                    {t('buyPanel.refDesc1')}<span className="text-cyan-400/60 font-bold">15%</span>{t('buyPanel.refDesc2')}<span className="text-cyan-400/60 font-bold">$187,500</span>)
                 </p>
             </div>
 
@@ -246,15 +248,15 @@ export default function BuyPanel() {
                 className="w-full py-4 rounded-xl bg-gradient-to-b from-white to-white/90 text-black font-black text-base tracking-tight hover:from-cyan-400 hover:to-cyan-500 transition-all duration-300 active:scale-[0.98] shadow-[0_8px_30px_-8px_rgba(255,255,255,0.25)] hover:shadow-[0_8px_30px_-8px_rgba(0,243,255,0.4)] disabled:opacity-50 disabled:cursor-not-allowed"
             >
                 {!isContractReady
-                    ? 'CONECTA TU WALLET'
+                    ? t('buyPanel.connect_btn')
                     : buying
-                        ? '⏳ Confirmando...'
+                        ? t('buyPanel.confirming')
                         : isApprovalNeeded
-                            ? `APROBAR GASTOS (${amount * priceUSDT} USDT)`
-                            : `CONQUISTAR ${amount > 1 ? `x${amount}` : ''} AHORA`
+                            ? `${t('buyPanel.approve')} (${amount * priceUSDT} USDT)`
+                            : `${t('buyPanel.conquer')} ${amount > 1 ? `x${amount}` : ''}${t('buyPanel.buy_now')}`
                 }
                 <div className="text-[9px] font-bold text-black/40 tracking-widest uppercase mt-0.5">
-                    PREMIO MÁX: 1,000,000 USDT
+                    {t('buyPanel.max_prize')}
                 </div>
             </button>
 
@@ -284,18 +286,18 @@ export default function BuyPanel() {
                     disabled={claiming}
                     className="w-full py-3 rounded-xl bg-gradient-to-r from-green-500 to-emerald-600 text-white font-black text-sm hover:from-green-400 hover:to-emerald-500 transition-all active:scale-[0.98] shadow-[0_0_30px_-10px_rgba(16,185,129,0.4)] disabled:opacity-50"
                 >
-                    {claiming ? '⏳ Reclamando...' : `🎉 RECLAMAR ${contractState.pendingPrize} USDT`}
+                    {claiming ? t('buyPanel.confirming') : `${t('buyPanel.claim')}${contractState.pendingPrize} USDT`}
                 </button>
             )}
 
             {/* User Stats */}
             <div className="grid grid-cols-2 gap-2">
                 <div className="bg-white/[0.03] border border-white/5 rounded-lg p-3 text-center">
-                    <div className="text-[9px] uppercase font-black text-white/25 mb-0.5 tracking-wider">Tus Parcelas</div>
+                    <div className="text-[9px] uppercase font-black text-white/25 mb-0.5 tracking-wider">{t('buyPanel.parcels')}</div>
                     <div className="text-xl font-black text-white">{userParcels}</div>
                 </div>
                 <div className="bg-white/[0.03] border border-white/5 rounded-lg p-3 text-center">
-                    <div className="text-[9px] uppercase font-black text-white/25 mb-0.5 tracking-wider">Referidos</div>
+                    <div className="text-[9px] uppercase font-black text-white/25 mb-0.5 tracking-wider">{t('buyPanel.referrals')}</div>
                     <div className="text-xl font-black text-white">{userReferrals}</div>
                 </div>
             </div>
