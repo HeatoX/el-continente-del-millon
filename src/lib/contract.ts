@@ -24,5 +24,5 @@ export const BSC_MAINNET = {
 // Set to mainnet since we deployed to mainnet
 export const ACTIVE_CHAIN = BSC_MAINNET;
 
-// The newly deployed Level God Contract Address
-export const CONTRACT_ADDRESS = "0xC24cc2bD219bACF4E3B35ba4b03dBE9453668D08";
+// The newly deployed Level God Contract Address (Verified via Remix)
+export const CONTRACT_ADDRESS = "0x8b75907EF2Dac4a03dFa5A8a0538dd67c2b3479e";
