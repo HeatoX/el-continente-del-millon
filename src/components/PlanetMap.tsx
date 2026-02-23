@@ -5,6 +5,7 @@ import { Canvas, useFrame, useThree, ThreeEvent } from '@react-three/fiber';
 import { OrbitControls, Html, Stars } from '@react-three/drei';
 import * as THREE from 'three';
 import { useGame, ParcelData } from '@/context/GameContext';
+import { useContract } from '@/context/ContractContext';
 
 const GRID = 500;
 
@@ -394,10 +395,11 @@ function CameraController({ flyTarget, zoomDelta }: {
 //  PARCEL DETAIL CARD (Google Earth-style info window)
 // ═══════════════════════════════════════════════════
 
-function ParcelDetailCard({ parcel, onBuy, onClose }: {
+function ParcelDetailCard({ parcel, onBuy, onClose, buying }: {
     parcel: ParcelInfo;
     onBuy: () => void;
     onClose: () => void;
+    buying?: boolean;
 }) {
     const { state } = useGame();
     const ownerData = parcel.owned ? state.parcels.get(`${parcel.gx},${parcel.gy}`) : null;
@@ -458,9 +460,10 @@ function ParcelDetailCard({ parcel, onBuy, onClose }: {
                 ) : (
                     <button
                         onClick={onBuy}
-                        className="w-full py-3 bg-gradient-to-r from-cyan-500 to-blue-600 rounded-xl text-white font-black text-sm uppercase tracking-wider hover:from-cyan-400 hover:to-blue-500 transition-all active:scale-95 shadow-lg shadow-cyan-500/25"
+                        disabled={buying}
+                        className="w-full py-3 bg-gradient-to-r from-cyan-500 to-blue-600 rounded-xl text-white font-black text-sm uppercase tracking-wider hover:from-cyan-400 hover:to-blue-500 transition-all active:scale-95 shadow-lg shadow-cyan-500/25 disabled:opacity-50"
                     >
-                        ⚔️ CONQUISTAR ESTA PARCELA
+                        {buying ? '⏳ PROCESANDO...' : '⚔️ CONQUISTAR ESTA PARCELA'}
                     </button>
                 )}
 
@@ -499,23 +502,59 @@ function ParcelDetailCard({ parcel, onBuy, onClose }: {
 
 export default function PlanetMap() {
     const { state, buyParcel } = useGame();
+    const { isContractReady, approveUsdt, buyParcels, state: contractState } = useContract();
     const [hoverInfo, setHoverInfo] = useState<ParcelInfo | null>(null);
     const [selectedParcel, setSelectedParcel] = useState<ParcelInfo | null>(null);
     const [flyTarget, setFlyTarget] = useState<THREE.Vector3 | null>(null);
     const [zoomDelta, setZoomDelta] = useState(0);
+    const [buying, setBuying] = useState(false);
 
     const handleSelect = useCallback((info: ParcelInfo) => {
         setSelectedParcel(info);
         setFlyTarget(info.pos);
     }, []);
 
-    const handleBuy = useCallback(() => {
-        if (selectedParcel && !selectedParcel.owned) {
-            buyParcel(selectedParcel.gx, selectedParcel.gy);
-            // Update card to show newly bought
-            setSelectedParcel(prev => prev ? { ...prev, owned: true, owner: '0x00...TÚ' } : null);
+    const handleBuy = useCallback(async () => {
+        if (!isContractReady) {
+            alert("Por favor, conecta tu wallet primero usando el botón de arriba.");
+            return;
         }
-    }, [selectedParcel, buyParcel]);
+
+        if (selectedParcel && !selectedParcel.owned) {
+            setBuying(true);
+            try {
+                // Check allowance
+                const priceUSDT = 5;
+                const isApprovalNeeded = parseFloat(contractState.usdtAllowance || '0') < priceUSDT;
+
+                if (isApprovalNeeded) {
+                    await approveUsdt(priceUSDT.toString());
+                }
+
+                // Default color & identifier since this modal doesn't have the customization panel
+                const defaultColorUint = parseInt('00f3ff', 16);
+                const defaultIdentifier = "0x00000000";
+
+                // Execute on-chain purchase
+                const hash = await buyParcels(
+                    [selectedParcel.gx],
+                    [selectedParcel.gy],
+                    undefined,
+                    defaultColorUint,
+                    defaultIdentifier
+                );
+
+                if (hash) {
+                    // Transaction succeeded, update UI optimistically until sync catches up
+                    setSelectedParcel(prev => prev ? { ...prev, owned: true, owner: 'TÚ' } : null);
+                }
+            } catch (err) {
+                console.error("Purchase failed or rejected in the map modal", err);
+            } finally {
+                setBuying(false);
+            }
+        }
+    }, [selectedParcel, isContractReady, approveUsdt, buyParcels, contractState.usdtAllowance]);
 
     const handleClose = useCallback(() => {
         setSelectedParcel(null);
@@ -585,6 +624,7 @@ export default function PlanetMap() {
                         parcel={selectedParcel}
                         onBuy={handleBuy}
                         onClose={handleClose}
+                        buying={buying}
                     />
                 )}
 

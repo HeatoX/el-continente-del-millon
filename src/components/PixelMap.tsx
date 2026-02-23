@@ -2,9 +2,11 @@
 
 import { useEffect, useRef, useCallback, useState } from 'react';
 import { useGame } from '@/context/GameContext';
+import { useContract } from '@/context/ContractContext';
 
 export default function PixelMap() {
-    const { state, buyParcel, isParcelOwned } = useGame();
+    const { state, isParcelOwned } = useGame();
+    const { isContractReady, approveUsdt, buyParcels, state: contractState } = useContract();
     const canvasRef = useRef<HTMLCanvasElement>(null);
     const containerRef = useRef<HTMLDivElement>(null);
     const tooltipRef = useRef<HTMLDivElement>(null);
@@ -217,7 +219,7 @@ export default function PixelMap() {
         dragStart.current = { x: e.clientX, y: e.clientY, camX, camY };
     }, [camX, camY]);
 
-    const handleMouseUp = useCallback((e: React.MouseEvent) => {
+    const handleMouseUp = useCallback(async (e: React.MouseEvent) => {
         if (isDragging) {
             const dx = Math.abs(e.clientX - dragStart.current.x);
             const dy = Math.abs(e.clientY - dragStart.current.y);
@@ -225,12 +227,27 @@ export default function PixelMap() {
             if (dx < 4 && dy < 4) {
                 const { gx, gy } = screenToGrid(e.clientX, e.clientY);
                 if (gx >= 0 && gx < gridSize && gy >= 0 && gy < gridSize) {
-                    buyParcel(gx, gy);
+                    if (!isParcelOwned(gx, gy)) {
+                        if (!isContractReady) {
+                            alert("Por favor conecta tu wallet primero.");
+                        } else {
+                            try {
+                                const priceUSDT = 5;
+                                const isApprovalNeeded = parseFloat(contractState.usdtAllowance || '0') < priceUSDT;
+                                if (isApprovalNeeded) {
+                                    await approveUsdt(priceUSDT.toString());
+                                }
+                                await buyParcels([gx], [gy], undefined, parseInt('00f3ff', 16), "0x00000000");
+                            } catch (err) {
+                                console.error("Error al comprar parcela desde el mapa", err);
+                            }
+                        }
+                    }
                 }
             }
         }
         setIsDragging(false);
-    }, [isDragging, screenToGrid, buyParcel]);
+    }, [isDragging, screenToGrid, isParcelOwned, isContractReady, approveUsdt, buyParcels, contractState.usdtAllowance]);
 
     const handleWheel = useCallback((e: React.WheelEvent) => {
         e.preventDefault();
@@ -273,8 +290,8 @@ export default function PixelMap() {
                             key={p.label}
                             onClick={() => setZoom(p.zoom)}
                             className={`text-[9px] px-2 py-1 rounded-md font-bold uppercase tracking-wider transition-all ${Math.abs(zoom - p.zoom) < 1
-                                    ? 'bg-cyan-400/15 text-cyan-400 border border-cyan-400/30'
-                                    : 'bg-white/5 text-white/30 border border-white/5 hover:text-white/50'
+                                ? 'bg-cyan-400/15 text-cyan-400 border border-cyan-400/30'
+                                : 'bg-white/5 text-white/30 border border-white/5 hover:text-white/50'
                                 }`}
                         >
                             {p.label}
