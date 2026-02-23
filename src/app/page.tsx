@@ -85,7 +85,7 @@ export default function LandingPage() {
             <span className="flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-white/10 bg-white/5 hover:bg-white/10 transition-colors"><span className="text-yellow-400 text-sm">🔶</span> BNB Smart Chain</span>
             <span className="flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-white/10 bg-white/5 hover:bg-white/10 transition-colors"><span className="text-orange-400 text-sm">🦊</span> MetaMask</span>
             <span className="flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-white/10 bg-white/5 hover:bg-white/10 transition-colors"><span className="text-green-400 text-sm">💵</span> USDT BEP-20</span>
-            <a href="https://bscscan.com/address/0xC24cc2bD219bACF4E3B35ba4b03dBE9453668D08" target="_blank" rel="noopener noreferrer" className="flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-blue-500/30 bg-blue-500/10 text-blue-400 hover:bg-blue-500/20 transition-colors">
+            <a href="https://bscscan.com/address/0x8b75907EF2Dac4a03dFa5A8a0538dd67c2b3479e" target="_blank" rel="noopener noreferrer" className="flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-blue-500/30 bg-blue-500/10 text-blue-400 hover:bg-blue-500/20 transition-colors">
               <span className="text-blue-400 text-sm">🛡️</span> Audited & Verified
             </a>
           </div>
@@ -175,11 +175,11 @@ export default function LandingPage() {
           </p>
 
           <div className="mb-8 relative z-10">
-            <a href="https://bscscan.com/address/0xC24cc2bD219bACF4E3B35ba4b03dBE9453668D08" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-3 bg-black/60 border border-white/10 rounded-xl px-4 py-3 hover:border-cyan-500/50 transition-colors group">
+            <a href="https://bscscan.com/address/0x8b75907EF2Dac4a03dFa5A8a0538dd67c2b3479e" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-3 bg-black/60 border border-white/10 rounded-xl px-4 py-3 hover:border-cyan-500/50 transition-colors group">
               <span className="text-3xl">📜</span>
               <div>
                 <div className="text-[10px] uppercase tracking-widest text-cyan-400 font-bold mb-0.5">{t('verifier.contract_title')}</div>
-                <div className="font-mono text-white/70 text-sm group-hover:text-white transition-colors">0xC24cc2bD219bACF4E3B35ba4b03dBE9453668D08 ↗</div>
+                <div className="font-mono text-white/70 text-sm group-hover:text-white transition-colors">0x8b75907EF2Dac4a03dFa5A8a0538dd67c2b3479e ↗</div>
               </div>
             </a>
           </div>

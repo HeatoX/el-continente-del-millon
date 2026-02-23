@@ -67,12 +67,12 @@ function Planet({ onParcelHover, onParcelSelect, selectedParcel }: {
         const ctx = canvas.getContext('2d')!;
 
         // Ocean base
-        ctx.fillStyle = '#060d18';
+        ctx.fillStyle = '#0a1930';
         ctx.fillRect(0, 0, size, size);
 
         // Subtle grid (fewer lines)
-        ctx.strokeStyle = 'rgba(0, 200, 255, 0.02)';
-        ctx.lineWidth = 0.5;
+        ctx.strokeStyle = 'rgba(0, 200, 255, 0.15)';
+        ctx.lineWidth = 1;
         const step = size / 25;
         for (let i = 0; i <= 25; i++) {
             ctx.beginPath(); ctx.moveTo(i * step, 0); ctx.lineTo(i * step, size); ctx.stroke();

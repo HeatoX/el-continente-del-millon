@@ -123,7 +123,7 @@ export function ContractProvider({ children }: { children: ReactNode }) {
                 const [parcels, referrals, pending] = await Promise.all([
                     contract.userParcelCount(address),
                     contract.totalReferrals(address),
-                    contract.getPendingPrize(address),
+                    contract.pendingPrize(address),
                 ]);
 
                 // Fetch USDT Info
