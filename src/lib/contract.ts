@@ -1,36 +1,7 @@
-// Contract ABI — only the functions we need from frontend
-export const CONTRACT_ABI = [
-    // Read functions
-    "function currentSeasonId() view returns (uint256)",
-    "function currentSeasonSold() view returns (uint256)",
-    "function carryOverPot() view returns (uint256)",
-    "function drawPhase() view returns (uint8)",
-    "function TOTAL_PARCELS() view returns (uint256)",
-    "function PARCEL_PRICE() view returns (uint256)",
-    "function GRID_SIZE() view returns (uint256)",
-    "function getSoldCount() view returns (uint256)",
-    "function getRemainingParcels() view returns (uint256)",
-    "function getTotalPrizePool() view returns (uint256)",
-    "function getParcelOwner(uint256 x, uint256 y) view returns (address)",
-    "function getSeasonInfo(uint256 seasonId) view returns (tuple(uint256 id, uint256 totalSold, uint256 totalPrize, uint256 winningIndex, address winner, address godfather, bool completed))",
-    "function pendingPrize(address) view returns (uint256)",
-    "function getPendingPrize(address user) view returns (uint256)",
-    "function referrers(address) view returns (address)",
-    "function totalReferrals(address) view returns (uint256)",
-    "function userParcelCount(address) view returns (uint256)",
-    "function commitHash() view returns (bytes32)",
+import abiJson from './abi.json';
 
-    // Write functions
-    "function buyParcels(uint256[] xs, uint256[] ys, address referrer) payable",
-    "function claim()",
-
-    // Events
-    "event ParcelPurchased(address indexed buyer, uint256 x, uint256 y, address indexed referrer, uint256 season)",
-    "event DrawRevealed(uint256 indexed season, address indexed winner, uint256 winningIndex, uint256 totalPrize)",
-    "event PrizeClaimed(address indexed recipient, uint256 amount)",
-    "event EarthquakeTriggered(uint256 season, uint256 threshold)",
-    "event SeasonReset(uint256 newSeasonId, uint256 carryOver)",
-] as const;
+// Export the complete ABI from JSON
+export const CONTRACT_ABI = abiJson;
 
 // BSC Testnet for development
 export const BSC_TESTNET = {
@@ -50,8 +21,8 @@ export const BSC_MAINNET = {
     explorer: "https://bscscan.com",
 };
 
-// Set to testnet for now — change to mainnet for production
-export const ACTIVE_CHAIN = BSC_TESTNET;
+// Set to mainnet since we deployed to mainnet
+export const ACTIVE_CHAIN = BSC_MAINNET;
 
-// Contract address — set after deployment
-export const CONTRACT_ADDRESS = process.env.NEXT_PUBLIC_CONTRACT_ADDRESS || "";
+// The newly deployed Level God Contract Address
+export const CONTRACT_ADDRESS = "0xC24cc2bD219bACF4E3B35ba4b03dBE9453668D08";

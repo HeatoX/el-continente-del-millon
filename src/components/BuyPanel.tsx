@@ -143,8 +143,8 @@ export default function BuyPanel() {
             </div>
 
             {/* Mode indicator */}
-            <div className={`text-[9px] font-bold uppercase tracking-wider px-3 py-1.5 rounded-full text-center ${isContractReady ? 'bg-green-500/10 text-green-400 border border-green-500/20' : 'bg-yellow-500/10 text-yellow-400 border border-yellow-500/20'}`}>
-                {isContractReady ? '🟢 CONTRATO ACTIVO — BNB REAL' : '🟡 MODO DEMO — Conecta wallet y despliega contrato'}
+            <div className={`text-[9px] font-bold uppercase tracking-wider px-3 py-1.5 rounded-full text-center ${isContractReady ? 'bg-green-500/10 text-green-400 border border-green-500/20' : 'bg-red-500/10 text-red-400 border border-red-500/20'}`}>
+                {isContractReady ? '🟢 CONTRATO ACTIVO — USDT REAL' : '🔴 DESCONECTADO — Conecta tu wallet para conquistar'}
             </div>
 
             {/* Customization Panel (100% On-Chain, 0 Gas) */}
@@ -242,17 +242,19 @@ export default function BuyPanel() {
             {/* BUY Button */}
             <button
                 onClick={handleAction}
-                disabled={buying}
-                className="w-full py-4 rounded-xl bg-gradient-to-b from-white to-white/90 text-black font-black text-base tracking-tight hover:from-cyan-400 hover:to-cyan-500 transition-all duration-300 active:scale-[0.98] shadow-[0_8px_30px_-8px_rgba(255,255,255,0.25)] hover:shadow-[0_8px_30px_-8px_rgba(0,243,255,0.4)] disabled:opacity-50 disabled:cursor-wait"
+                disabled={buying || !isContractReady}
+                className="w-full py-4 rounded-xl bg-gradient-to-b from-white to-white/90 text-black font-black text-base tracking-tight hover:from-cyan-400 hover:to-cyan-500 transition-all duration-300 active:scale-[0.98] shadow-[0_8px_30px_-8px_rgba(255,255,255,0.25)] hover:shadow-[0_8px_30px_-8px_rgba(0,243,255,0.4)] disabled:opacity-50 disabled:cursor-not-allowed"
             >
-                {buying
-                    ? '⏳ Confirmando...'
-                    : isApprovalNeeded
-                        ? `APROBAR GASTOS (${amount * priceUSDT} USDT)`
-                        : `CONQUISTAR ${amount > 1 ? `x${amount}` : ''} AHORA`
+                {!isContractReady
+                    ? 'CONECTA TU WALLET'
+                    : buying
+                        ? '⏳ Confirmando...'
+                        : isApprovalNeeded
+                            ? `APROBAR GASTOS (${amount * priceUSDT} USDT)`
+                            : `CONQUISTAR ${amount > 1 ? `x${amount}` : ''} AHORA`
                 }
                 <div className="text-[9px] font-bold text-black/40 tracking-widest uppercase mt-0.5">
-                    PREMIO MÁX: 500,000 USDT
+                    PREMIO MÁX: 1,000,000 USDT
                 </div>
             </button>
 

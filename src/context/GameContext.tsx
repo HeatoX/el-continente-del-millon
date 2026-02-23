@@ -1,6 +1,8 @@
 "use client";
 
-import { createContext, useContext, useState, useCallback, ReactNode } from 'react';
+import { createContext, useContext, useState, useCallback, ReactNode, useEffect, useRef } from 'react';
+import { ethers } from 'ethers';
+import { CONTRACT_ABI, CONTRACT_ADDRESS, ACTIVE_CHAIN } from '@/lib/contract';
 
 export interface ParcelData {
     x: number;
@@ -39,150 +41,158 @@ interface GameContextType {
 
 const GameContext = createContext<GameContextType | null>(null);
 
-const COLORS = [
-    '#00f3ff', '#ff00ff', '#9d00ff', '#ffcc00', '#00ff88',
-    '#ff4466', '#44bbff', '#ff8800', '#88ff00', '#ff0088',
-    '#00ffcc', '#8844ff', '#ff4400', '#0088ff', '#ffff00',
-];
-
-function generateInitialParcels(count: number): Map<string, ParcelData> {
-    const map = new Map<string, ParcelData>();
-    const gridSize = 500;
-    const centerX = gridSize / 2;
-    const centerY = gridSize / 2;
-    const radius = gridSize * 0.4;
-
-    const wallets = [
-        '0xF3a1...A21', '0x82eE...EE4', '0x11Ab...ABC',
-        '0xBBc9...990', '0x00a1...111', '0xD4f2...F82',
-    ];
-
-    for (let i = 0; i < count; i++) {
-        const angle = i * 137.508;
-        const r = Math.sqrt(i) * (radius / Math.sqrt(count));
-        const x = Math.floor(centerX + r * Math.cos((angle * Math.PI) / 180));
-        const y = Math.floor(centerY + r * Math.sin((angle * Math.PI) / 180));
-
-        if (x >= 0 && x < gridSize && y >= 0 && y < gridSize) {
-            const key = `${x},${y}`;
-            if (!map.has(key)) {
-                map.set(key, {
-                    x, y,
-                    owner: wallets[i % wallets.length],
-                    color: COLORS[Math.floor(i / 200) % COLORS.length],
-                });
-            }
-        }
-    }
-    return map;
-}
-
-const INITIAL_SOLD = 158420;
+const GRID_SIZE = 500;
+const TOTAL_PARCELS = GRID_SIZE * GRID_SIZE;
 
 export function GameProvider({ children }: { children: ReactNode }) {
-    const [state, setState] = useState<GameState>(() => ({
+    const [state, setState] = useState<GameState>({
         season: 1,
-        totalPixels: 250000,
-        pixelsSold: INITIAL_SOLD,
-        prizePool: INITIAL_SOLD * 5,
-        parcels: generateInitialParcels(INITIAL_SOLD),
-        hotZone: { x: 220, y: 180, size: 20 },
-        earthquakeProgress: 70,
-        userParcels: 12,
-        userReferrals: 4,
-        activityLog: [
-            { text: 'Conquistó x25 parcelas', time: 'hace 2s', user: '0xA1...B2', type: 'buy' },
-            { text: 'Conquistó x1 parcela', time: 'hace 8s', user: '0xF9...33', type: 'buy' },
-            { text: 'Nuevo referido nivel 🥈', time: 'hace 15s', user: '0x88...C1', type: 'referral' },
-            { text: '🌋 Terremoto! 5 parcelas gratis', time: 'hace 1m', user: 'SISTEMA', type: 'earthquake' },
-            { text: '🔥 Hot Zone activada [220,180]', time: 'hace 3m', user: 'SISTEMA', type: 'hotzone' },
-        ],
-        leaderboard: [
-            { name: '0xF3...A21', parcels: 1540, invested: '$7.7k' },
-            { name: '0x82...EE4', parcels: 942, invested: '$4.7k' },
-            { name: '0x11...ABC', parcels: 812, invested: '$4.0k' },
-            { name: '0xBB...990', parcels: 420, invested: '$2.1k' },
-            { name: '0x00...111', parcels: 150, invested: '$0.7k' },
-            { name: '0xD4...F82', parcels: 88, invested: '$0.4k' },
-            { name: '0x7A...012', parcels: 50, invested: '$0.2k' },
-        ],
-    }));
+        totalPixels: TOTAL_PARCELS,
+        pixelsSold: 0,
+        prizePool: 0,
+        parcels: new Map<string, ParcelData>(), // Starts 100% empty (Real data)
+        hotZone: null,
+        earthquakeProgress: 0,
+        userParcels: 0,
+        userReferrals: 0,
+        activityLog: [],
+        leaderboard: [],
+    });
+
+    const isSyncing = useRef(false);
+
+    // Sync data from blockchain
+    const syncMapData = useCallback(async () => {
+        if (!CONTRACT_ADDRESS || isSyncing.current) return;
+
+        try {
+            isSyncing.current = true;
+            let provider;
+            if (typeof window !== 'undefined' && (window as any).ethereum) {
+                provider = new ethers.BrowserProvider((window as any).ethereum);
+            } else {
+                provider = new ethers.JsonRpcProvider(ACTIVE_CHAIN.rpc);
+            }
+
+            const contract = new ethers.Contract(CONTRACT_ADDRESS, CONTRACT_ABI, provider);
+
+            // Limit the amount of async calls we make at once to not anger public RPC limiters
+            const soldCountRaw = await contract.getSoldCount();
+            const soldCount = Number(soldCountRaw);
+
+            setState(prev => {
+                if (prev.pixelsSold >= soldCount) return prev; // Up to date
+
+                // We need to fetch the new ones. Since async state updates can be tricky,
+                // we fire off an async IIFE to fetch the missing ones.
+                (async () => {
+                    const newParcels = new Map(prev.parcels);
+                    const newLogs = [...prev.activityLog];
+
+                    // Fetch in chunks to avoid rate limits
+                    const start = prev.pixelsSold;
+                    const end = soldCount;
+
+                    for (let i = start; i < end; i++) {
+                        try {
+                            const gridIndex = await contract.soldIndices(i);
+                            const parcelData = await contract.grid(gridIndex);
+
+                            const owner = parcelData[0];
+                            const colorUint = Number(parcelData[2]);
+                            const identifierHex = parcelData[3];
+
+                            // Decode color
+                            const colorHex = '#' + colorUint.toString(16).padStart(6, '0');
+
+                            // Decode bytes4 identifier back to string
+                            let identifierStr = '';
+                            if (identifierHex !== '0x00000000') {
+                                identifierStr = ethers.decodeBytes32String(identifierHex.padEnd(66, '0')).replace(/\0/g, '').trim();
+                                if (!identifierStr) {
+                                    // Fallback manual bytes4 decode if decodeBytes32String fails on pure bytes4
+                                    identifierStr = Buffer.from(identifierHex.slice(2), 'hex').toString('utf8').replace(/\0/g, '').trim();
+                                }
+                            }
+
+                            const x = Number(gridIndex) % GRID_SIZE;
+                            const y = Math.floor(Number(gridIndex) / GRID_SIZE);
+                            const key = `${x},${y}`;
+
+                            newParcels.set(key, {
+                                x, y,
+                                owner: identifierStr || owner,
+                                color: colorHex
+                            });
+
+                            if (i >= end - 5) {
+                                // Add only the latest logs
+                                newLogs.unshift({
+                                    text: `Conquistó parcela [${x},${y}]`,
+                                    time: 'En vivo',
+                                    user: identifierStr || `${owner.slice(0, 6)}...`,
+                                    type: 'buy'
+                                });
+                            }
+                        } catch (e) {
+                            console.error(`Error fetching parcel index ${i}`, e);
+                        }
+                    }
+
+                    // Generate Leaderboard on the fly
+                    const territories = new Map<string, number>();
+                    newParcels.forEach((p) => {
+                        territories.set(p.owner, (territories.get(p.owner) || 0) + 1);
+                    });
+
+                    const newLeaderboard = Array.from(territories.entries())
+                        .map(([name, parcels]) => ({
+                            name,
+                            parcels,
+                            invested: `$${parcels * 5}` // Since 1 parcel = 5 USDT
+                        }))
+                        .sort((a, b) => b.parcels - a.parcels)
+                        .slice(0, 10);
+
+                    setState(curr => ({
+                        ...curr,
+                        pixelsSold: soldCount,
+                        prizePool: soldCount * 5,
+                        parcels: newParcels,
+                        activityLog: newLogs.slice(0, 20),
+                        leaderboard: newLeaderboard
+                    }));
+                })();
+
+                return prev;
+            });
+
+        } catch (e) {
+            console.error("Error syncing map state", e);
+        } finally {
+            isSyncing.current = false;
+        }
+    }, [state.pixelsSold]);
+
+    // Polling map data every 10 seconds
+    useEffect(() => {
+        syncMapData();
+        const interval = setInterval(syncMapData, 10000);
+        return () => clearInterval(interval);
+    }, [syncMapData]);
 
     const isParcelOwned = useCallback((x: number, y: number) => {
         return state.parcels.has(`${x},${y}`);
     }, [state.parcels]);
 
+    // These local buy functions are empty stubs because ContractContext Handles Reals Txns now
+    // But we keep them so the UI component structure doesn't break
     const buyParcel = useCallback((x: number, y: number, color?: string, identifier?: string) => {
-        setState(prev => {
-            const key = `${x},${y}`;
-            if (prev.parcels.has(key)) return prev;
-
-            const newParcels = new Map(prev.parcels);
-            newParcels.set(key, {
-                x, y,
-                owner: identifier && identifier.length > 0 ? identifier : '0xTU...WAL',
-                color: color || '#00f3ff',
-            });
-
-            const newLog: ActivityLog = {
-                text: `Conquistó parcela [${x},${y}]`,
-                time: 'ahora',
-                user: identifier && identifier.length > 0 ? identifier : '0xTU...WAL',
-                type: 'buy',
-            };
-
-            return {
-                ...prev,
-                pixelsSold: prev.pixelsSold + 1,
-                prizePool: prev.prizePool + 5,
-                parcels: newParcels,
-                userParcels: prev.userParcels + 1,
-                activityLog: [newLog, ...prev.activityLog.slice(0, 19)],
-            };
-        });
+        // Handled via ContractContext.buyParcels() in BuyPanel
     }, []);
 
     const buyRandomParcels = useCallback((count: number, color?: string, identifier?: string) => {
-        setState(prev => {
-            const newParcels = new Map(prev.parcels);
-            const newLogs: ActivityLog[] = [];
-            let bought = 0;
-            let attempts = 0;
-
-            while (bought < count && attempts < count * 10) {
-                const x = Math.floor(Math.random() * 500);
-                const y = Math.floor(Math.random() * 500);
-                const key = `${x},${y}`;
-                attempts++;
-
-                if (!newParcels.has(key)) {
-                    newParcels.set(key, {
-                        x, y,
-                        owner: identifier && identifier.length > 0 ? identifier : '0xTU...WAL',
-                        color: color || '#00f3ff'
-                    });
-                    bought++;
-                }
-            }
-
-            if (bought > 0) {
-                newLogs.push({
-                    text: `Conquistó x${bought} parcelas`,
-                    time: 'ahora',
-                    user: identifier && identifier.length > 0 ? identifier : '0xTU...WAL',
-                    type: 'buy',
-                });
-            }
-
-            return {
-                ...prev,
-                pixelsSold: prev.pixelsSold + bought,
-                prizePool: prev.prizePool + bought * 5,
-                parcels: newParcels,
-                userParcels: prev.userParcels + bought,
-                activityLog: [...newLogs, ...prev.activityLog.slice(0, 19)],
-            };
-        });
+        // Handled via ContractContext.buyParcels() in BuyPanel
     }, []);
 
     return (

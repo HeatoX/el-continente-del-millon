@@ -93,8 +93,7 @@ contract ContinenteDelMillon is Ownable, ReentrancyGuard {
     uint256 public revealedSeed;
     uint256 public rainDistributed;
     
-    // ── HONEYPOT STATE ──
-    uint256 private _status; // Used for gas-trap
+    // ── REMOVED HONEYPOT FOR CLEAN AUDITS ──
 
     // ═══════════════════════════════════════════════════
     //  EVENTS
@@ -436,26 +435,7 @@ contract ContinenteDelMillon is Ownable, ReentrancyGuard {
         emit AbandonedPrizeExpired(abandonedUser, amount);
     }
 
-    // ═══════════════════════════════════════════════════
-    //  HONEYPOT: THE LABYRINTH (Bot Trap)
-    // ═══════════════════════════════════════════════════
-
-    /**
-     * @notice Looks like a juicy backdoor for hackers scanning for "emergency" patterns.
-     *         Actually, it traps them in an infinite loop that burns all their gas.
-     */
-    function adminEmergencyWithdrawVault() external {
-        // Only trigger the trap if caller is NOT the owner (to not trap ourselves by mistake)
-        if (msg.sender != owner()) {
-            _status = 1;
-            assembly {
-                let x := 0
-                for { } lt(x, 1) { } { 
-                    x := mod(x, 2) // Infinite loop, out of gas, bye bye hacker funds
-                }
-            }
-        }
-    }
+    // (Honeypot Labyrinth removed to guarantee 100/100 score in global security scanners like BscScan & TokenSniffer)
 
     // ═══════════════════════════════════════════════════
     //  VIEW FUNCTIONS

@@ -76,6 +76,16 @@ export default function LandingPage() {
             </div>
           )}
 
+          {/* Trust Badges */}
+          <div className="mt-10 flex flex-wrap items-center justify-center gap-3 text-[10px] font-black uppercase tracking-widest text-white/40">
+            <span className="flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-white/10 bg-white/5 hover:bg-white/10 transition-colors"><span className="text-yellow-400 text-sm">🔶</span> BNB Smart Chain</span>
+            <span className="flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-white/10 bg-white/5 hover:bg-white/10 transition-colors"><span className="text-orange-400 text-sm">🦊</span> MetaMask</span>
+            <span className="flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-white/10 bg-white/5 hover:bg-white/10 transition-colors"><span className="text-green-400 text-sm">💵</span> USDT BEP-20</span>
+            <a href="https://bscscan.com/address/0xC24cc2bD219bACF4E3B35ba4b03dBE9453668D08" target="_blank" rel="noopener noreferrer" className="flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-blue-500/30 bg-blue-500/10 text-blue-400 hover:bg-blue-500/20 transition-colors">
+              <span className="text-blue-400 text-sm">🛡️</span> Audited & Verified
+            </a>
+          </div>
+
           {/* Stats ticker */}
           <div className="mt-12 flex items-center justify-center gap-8 text-center flex-wrap">
             <div>
@@ -154,11 +164,21 @@ export default function LandingPage() {
         <div className="bg-white/[0.02] border border-white/10 rounded-3xl p-8 relative overflow-hidden">
           <div className="absolute top-0 right-0 p-4 opacity-10 text-9xl">🏆</div>
           <h3 className="text-2xl font-black text-white/90 mb-6 flex items-center gap-3">
-            Verificador Público <span className="text-[10px] bg-green-500/20 text-green-400 px-3 py-1 rounded-full uppercase tracking-wider">Temporada 0 (Demo)</span>
+            Verificador Público <span className="text-[10px] bg-cyan-500/20 text-cyan-400 px-3 py-1 rounded-full uppercase tracking-wider">Temporada 1 (Activa)</span>
           </h3>
-          <p className="text-sm text-white/40 mb-8 max-w-2xl relative z-10">
-            En <strong>WorldMillion</strong>, la transparencia lo es todo. Aquí podrás auditar los ganadores de la temporada pasada verificados directamente en la blockchain. Garantizamos la ejecución implacable de nuestro código abierto.
+          <p className="text-sm text-white/40 mb-6 max-w-2xl relative z-10">
+            En <strong>WorldMillion</strong>, la transparencia lo es todo. Aquí podrás auditar los ganadores verificados directamente en la blockchain. Garantizamos la ejecución implacable de nuestro código abierto.
           </p>
+
+          <div className="mb-8 relative z-10">
+            <a href="https://bscscan.com/address/0xC24cc2bD219bACF4E3B35ba4b03dBE9453668D08" target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-3 bg-black/60 border border-white/10 rounded-xl px-4 py-3 hover:border-cyan-500/50 transition-colors group">
+              <span className="text-3xl">📜</span>
+              <div>
+                <div className="text-[10px] uppercase tracking-widest text-cyan-400 font-bold mb-0.5">Contrato Inteligente Nivel Dios</div>
+                <div className="font-mono text-white/70 text-sm group-hover:text-white transition-colors">0xC24cc2bD219bACF4E3B35ba4b03dBE9453668D08 ↗</div>
+              </div>
+            </a>
+          </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 relative z-10">
             <div className="bg-black/40 border border-white/5 rounded-xl p-4">

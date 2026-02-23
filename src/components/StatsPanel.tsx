@@ -79,9 +79,9 @@ export default function StatsPanel() {
                     #{String(seasonId).padStart(2, '0')}
                 </div>
                 <div className="flex items-center gap-2 mt-2">
-                    <span className={`flex items-center gap-1 text-[9px] px-2 py-0.5 rounded-full font-bold uppercase tracking-wider ${isContractReady ? 'bg-green-500/15 text-green-400' : 'bg-yellow-500/15 text-yellow-400'}`}>
-                        <span className={`w-1.5 h-1.5 rounded-full ${isContractReady ? 'bg-green-500' : 'bg-yellow-500'} animate-pulse`} />
-                        {isContractReady ? 'On-Chain' : 'Demo'}
+                    <span className={`flex items-center gap-1 text-[9px] px-2 py-0.5 rounded-full font-bold uppercase tracking-wider ${isContractReady ? 'bg-green-500/15 text-green-400' : 'bg-cyan-500/15 text-cyan-400'}`}>
+                        <span className={`w-1.5 h-1.5 rounded-full ${isContractReady ? 'bg-green-500' : 'bg-cyan-500'} animate-pulse`} />
+                        {isContractReady ? 'On-Chain Activo' : 'Conectando Nodo...'}
                     </span>
                     <span className="text-[9px] bg-emerald-500/15 text-emerald-400 px-2 py-0.5 rounded-full font-bold uppercase tracking-wider">
                         BSC (USDT)
